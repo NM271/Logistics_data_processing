@@ -20,7 +20,7 @@ dag = DAG(
     default_args=default_args,
     description='logistics data processing job',
     schedule_interval=None,
-    start_date=datetime(2024, 6, 6),
+    start_date=datetime(2024, 7, 18),
     tags=['procss_orders_data'],
 )
 
@@ -82,13 +82,13 @@ submit_pyspark_job=DataprocSubmitPySparkJobOperator(
             dag=dag,
         )
 # # ensures deleting cluster 
-# delete_cluster = DataprocDeleteClusterOperator(
-#     task_id='delete_cluster',
-#     cluster_name=CLUSTER_NAME,
-#     project_id=PROJECT_ID,
-#     region=REGION,
-#     trigger_rule='all_done',  # ensures cluster deletion even if Spark job fails
-#     dag=dag,
-# )
+delete_cluster = DataprocDeleteClusterOperator(
+    task_id='delete_cluster',
+    cluster_name=CLUSTER_NAME,
+    project_id=PROJECT_ID,
+    region=REGION,
+    trigger_rule='all_done',  # ensures cluster deletion even if Spark job fails
+    dag=dag,
+)
 
-sensor >> create_cluster >> submit_pyspark_job 
+sensor >> create_cluster >> submit_pyspark_job >> delete_cluster
